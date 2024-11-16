@@ -1,0 +1,279 @@
+---
+title: "Mathematical Finance Notebook"
+author: "Chesia Anyika"
+date: "2024-05-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Week 1
+
+## Probability and Statistics Recap
+
+### Question
+
+The masses in grams of 30 small fruits are shown in the table below:
+
+| Mass (g)        | 50 - 59 | 60 - 69 | 70 - 79 | 80 - 89 | 90 - 99 | 100 - 109 | 110 - 119 |
+|-----------------|---------|---------|---------|---------|---------|-----------|-----------|
+| **Fruits (no)** | 4       | 5       | 9       | 14      | 7       | 6         | 5         |
+
+First, create the table with values given
+
+```{r}
+class <- c('50 - 59', '60 - 69', '70 - 79', '80 - 89', '90 - 99', '100 - 109', '110 -119')
+
+x <- c(54.5, 64.5, 74.5, 84.5, 94.5, 104.5, 114.5)
+f <- c(4, 5, 9, 14, 7, 6, 5)
+cf <- c(4, 9, 18, 32, 39, 45, 50)
+
+table1 <- data.frame(class, x, f, cf)
+
+table1
+```
+
+compute extra columns
+
+```{r}
+table1$fx <- table1$f * table1$x
+table1
+```
+
+```{r}
+table1$fx.sq <- table1$f * (table1$x)^2
+table1
+```
+
+compute sums of relevant rows
+
+```{r}
+f.sum <- sum(table1$f)
+cf.sum <- sum(table1$cf)
+fx.sum <- sum(table1$fx)
+fxsq.sum <- sum(table1$fx.sq)
+
+cat('\n Sum of f: ', f.sum, '\n Sum of cf: ', cf.sum, '\n Sum of fx: ', fx.sum, '\n Sum of fx.sq: ', fxsq.sum)
+```
+
+Compute the questions
+
+**a) State the modal class and calculate the mode**
+
+Modal class: The modal class is 80 - 89, as it has the highest frequency of 14.
+
+Mode:
+
+As per the formula: $LCB + (\frac{f - f_a}{2f - f_a - f_b}) \times i$
+
+```{r}
+# Define the function
+gmode.func <- function(LCB, f, f_a, f_b, i) {
+  value <- LCB + ((f - f_a) / (2*f - f_a - f_b)) * i
+  return(value)
+}
+```
+
+```{r}
+# define parameters
+LCB <- 79.5
+f <- 14
+fa <- 9
+fb <- 7
+i <- 90.5-79.5
+
+# compute function
+mode <- gmode.func(LCB, f, fa, fb, i)
+mode
+```
+
+**b) Calculate the mean, variance and standard deviation**
+
+Mean:
+
+As per the formula: $\bar X = \frac{\sum fx}{\sum f}$:
+
+```{r}
+# Define the function
+gmean.func <- function(fx, f) {
+  weighted_mean <- fx / f
+  return(weighted_mean)
+}
+```
+
+```{r}
+# define parameters
+# f.sum
+#fx.sum
+
+#compute function
+mean <- gmean.func(fx.sum, f.sum)
+mean
+```
+
+Variance:
+
+As per the formula: $\frac{\sum fx^2}{\sum f} - \bar X^2$
+
+```{r}
+# define function
+var.func <- function(fx_squared, f, mean_x) {
+  variance <- (fx_squared / f) - mean_x^2
+  return(variance)
+}
+```
+
+```{r}
+# define parameters
+#fxsq.sum
+#f.sum
+mean.sq <- mean^2
+
+#compute function
+var <- var.func(fxsq.sum, f.sum, mean.sq)
+var
+```
+
+Standard Deviation:
+
+As per the formula: $\sqrt{Variance}$
+
+```{r}
+sd <- sqrt(var)
+```
+
+**c) Calculate the median and semi- interquartile range**
+
+Median:
+
+As per the formula: $LCB + (\frac{\frac{n+1}{2} - cf_a}{f})\times i$
+
+```{r}
+# Define the function
+median.func <- function(LCB, n, cf_a, f, i) {
+  value <- LCB + (( ( (n + 1) / 2 ) - cf_a) / f) * i
+  return(value)
+}
+```
+
+Define parameters in relation to the median class:
+
+```{r}
+#find median class
+n = 50
+(n+1)/2
+```
+
+The median class is 70 - 79, as the 25.5 value is within this class.
+
+```{r}
+# define parameters
+#n
+LCB <- 70 - 0.5
+cfa <- 9
+f <- 9
+i <- 79.5 - 69.5
+
+#compute function
+median.func(LCB, n, cfa, f, i)
+```
+
+Semi-Interquartile range:
+
+1.  Computing lower quartile
+
+As per the formula: $LCB + (\frac{\frac{n+1}{4} - cf_a}{f})\times i$
+
+```{r}
+# Define the function
+q1.func <- function(LCB, n, cf_a, f, i) {
+  value <- LCB + (( ( (n + 1) / 4 ) - cf_a) / f) * i
+  return(value)
+}
+```
+
+```{r}
+n = 50
+
+(n+1)/4
+```
+
+The class is 60 - 69.
+
+```{r}
+#define the parameters
+#n
+LCB <- 70 - 0.5
+cfa <- 4
+f <- 5
+i <- 69.5 - 59.5
+
+#compute function
+q1 <- q1.func(LCB, n, cfa, f, i)
+q1
+```
+
+1.  Computing upper quartile
+
+As per the formula: $LCB + (\frac{3(\frac{n+1}{4}) - cf_a}{f})\times i$
+
+```{r}
+# Define the function
+q3.func <- function(LCB, n, cf_a, f, i) {
+  value <- LCB + (( ( 3*(n + 1) / 4 ) - cf_a) / f) * i
+  return(value)
+}
+```
+
+```{r}
+n = 50
+
+3*(n+1)/4
+```
+
+The class is 80 - 89.
+
+```{r}
+#define the parameters
+#n
+LCB <- 80 - 0.5
+cfa <- 18
+f <- 14
+i <- 89.5 - 79.5
+
+#compute function
+q3 <- q3.func(LCB, n, cfa, f, i)
+q3
+```
+
+1.  Semi-intrequartile range
+
+As per the formula: $\frac{Q3 - Q1}{2}$
+
+```{r}
+SIQR <- (q3 - q1)/2
+SIQR
+```
+
+### Formulas
+
+|                                    | **Grouped Data**                                    | **Un-grouped data** |
+|------------------------------------|-----------------------------------------------------|---------------------|
+| **Mode**                           | $LCB + (\frac{f - f_a}{2f - f_a - f_b}) \times i$   |                     |
+| **Mean (** $\bar X$ **)**          | $\frac{\sum fx}{\sum f}$                            |                     |
+| **Variance (** $S^2$ **)**         | $\frac{\sum fx^2}{\sum f} - \bar X^2$               |                     |
+| **Standard Deviation (** $S$ **)** | $\sqrt{Variance}$                                   |                     |
+| **Median**                         | $LCB + (\frac{\frac{n+1}{2} - cf_a}{f})\times i$    |                     |
+| **Lower Quartile (Q1)**            | $LCB + (\frac{\frac{n+1}{4} - cf_a}{f})\times i$    |                     |
+| **Upper Quartile (Q3)**            | $LCB + (\frac{3(\frac{n+1}{4}) - cf_a}{f})\times i$ |                     |
+| **Inter-Quartile Range**           | $Q3 - Q1$                                           |                     |
+| **Semi Inter-Quartile Range**      | $\frac{Q3 - Q1}{2}$                                 |                     |
+|                                    |                                                     |                     |
+
+$f_a$ - Frequency of the class above
+
+$f_b$ - Frequency of the class below
+
+# Week 2
